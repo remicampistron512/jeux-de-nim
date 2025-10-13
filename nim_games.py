@@ -24,7 +24,7 @@ def choose_starting_player(num_players):
         if i != num_players:
             print (i, end=" ou ")
         else:
-            print (i, end=" ) ? ")
+            print (i, end=" )  ? ")
 
     starting_player = int(input(":  "))
 
