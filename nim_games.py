@@ -7,6 +7,7 @@ Jeux  de Nim (variante simple et de Marienbad)
 """
 from itertools import cycle
 
+
 def display_matches_stacks(matches_stacks):
     """
     Affiche les allumettes
@@ -19,25 +20,45 @@ def display_matches_stacks(matches_stacks):
 
 
 def choose_starting_player(num_players):
+    """
+    On affiche l'invite pour choisir le joueur 1 ou 2
+    :param num_players:
+    :return:
+    """
     print("Quel joueur doit commencer ? (Tapez ", end=" ")
-    for i in range(1,num_players+1):
+    for i in range(1, num_players + 1):
         if i != num_players:
-            print (i, end=" ou ")
+            print(i, end=" ou ")
         else:
-            print (i, end=" )  ? ")
+            print(i, end=" )  ? ")
 
-    starting_player_id = int(input(":  "))
+    starting_player_id = input(":  ")
 
+    if starting_player_id.isdigit():
+        if int(starting_player_id) not in range(1, num_players + 1):
+            print(f"Joueur invalide (entrez un chiffre entre 1 et {num_players} )")
+            return choose_starting_player(num_players)
+        else:
+            return int(starting_player_id)
+    else:
+        print("Joueur invalide (pas un chiffre)")
+        return choose_starting_player(num_players)
 
-    return starting_player_id
 
 def compute_turn(current_player_id, players, matches_stacks):
     display_matches_stacks(matches_stacks)
-    print(f"c'est a {get_player_name_by_id(current_player_id,players)} de jouer")
-    num_matches_removed = int(input("Combien d'allumettes souhaitez retirez"))
-    matches_stacks[0] -= num_matches_removed
+    print(f"c'est a {get_player_name_by_id(current_player_id, players)} de jouer")
+    num_matches_removed = input("Combien d'allumettes souhaitez vous retirez : ")
 
-def init_cycle(players,starting_player_id):
+    if num_matches_removed.isdigit() and 4 >= int(num_matches_removed) >= 1:
+        matches_stacks[0] -= int(num_matches_removed)
+        return None
+    else:
+        print ("merci de rentrer un chiffre valide entre 1 et 4")
+        return compute_turn(current_player_id, players, matches_stacks)
+
+
+def init_cycle(players, starting_player_id):
     id_cycle = cycle(p["id"] for p in players)
     # avancer jusqu'au joueur de départ
     cur = next(id_cycle)
@@ -45,40 +66,35 @@ def init_cycle(players,starting_player_id):
         cur = next(id_cycle)
     return id_cycle
 
+
 def next_player(id_cycle):
     current_player_id = next(id_cycle)
-    print ("next player :" + str(current_player_id))
     return current_player_id
 
-def next_turn(current_player_id, players, matches_stacks,id_cycle):
-    print ("next turn")
+
+def next_turn(current_player_id, players, matches_stacks, id_cycle):
     if matches_stacks[0] > 1:
 
         current_player_id = next_player(id_cycle)
         compute_turn(current_player_id, players, matches_stacks)
         next_turn(current_player_id, players, matches_stacks, id_cycle)
     else:
-        print (f"{get_player_name_by_id(current_player_id,players)} a gagné !!")
+        print(f"{get_player_name_by_id(current_player_id, players)} a gagné !!")
 
 
-
-def start_game(starting_player_id,players,matches_stacks):
+def start_game(starting_player_id, players, matches_stacks):
     compute_turn(starting_player_id, players, matches_stacks)
-    id_cycle = init_cycle(players,starting_player_id)
-    print ("starting player" + str(starting_player_id))
-    next_turn(starting_player_id, players, matches_stacks,id_cycle)
+    id_cycle = init_cycle(players, starting_player_id)
+    next_turn(starting_player_id, players, matches_stacks, id_cycle)
 
 
 def get_player_name_by_id(player_id, players):
-
     player_name = ""
     for player in players:
         if player_id == player["id"]:
             player_name = player["name"]
 
     return player_name
-
-
 
 
 def init_game(num_players):
@@ -94,11 +110,9 @@ def init_game(num_players):
     matches_stacks = [0]
     matches_stacks[0] = 21
 
-
-    start_game(starting_player_id,players,matches_stacks)
+    start_game(starting_player_id, players, matches_stacks)
 
     print("finish")
-
 
 
 def init_players_names(num_players):
