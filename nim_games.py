@@ -45,7 +45,7 @@ def choose_starting_player(num_players):
         return choose_starting_player(num_players)
 
 
-def compute_turn(current_player_id, players, matches_stacks):
+def compute_turn(current_player_id, players, matches_stacks,prev_move):
     """
     Debut du tour le joueur enlève 1 a 4 allumettes
     :param current_player_id:
@@ -54,15 +54,22 @@ def compute_turn(current_player_id, players, matches_stacks):
     :return:
     """
     display_matches_stacks(matches_stacks)
-    print(f"c'est a {get_player_name_by_id(current_player_id, players)} de jouer")
-    num_matches_removed = input("Combien d'allumettes souhaitez vous retirez : ")
+    current_player_name = get_player_name_by_id(current_player_id, players)
+    print(f"c'est a {current_player_name} de jouer")
+    if current_player_name == "cpu":
+        num_matches_removed = 5 - int(prev_move)
+        print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
+    else:
+        num_matches_removed = input("Combien d'allumettes souhaitez vous retirez : ")
 
-    if num_matches_removed.isdigit() and 4 >= int(num_matches_removed) >= 1:
+    current_move = num_matches_removed
+
+    if str(num_matches_removed).isdigit() and 4 >= int(num_matches_removed) >= 1:
         matches_stacks[0] -= int(num_matches_removed)
-        return None
+        return current_move
     else:
         print ("merci de rentrer un chiffre valide entre 1 et 4")
-        return compute_turn(current_player_id, players, matches_stacks)
+        return compute_turn(current_player_id, players, matches_stacks,current_move)
 
 
 def init_cycle(players, starting_player_id):
@@ -90,7 +97,7 @@ def next_player(id_cycle):
     return current_player_id
 
 
-def next_turn(current_player_id, players, matches_stacks, id_cycle):
+def next_turn(current_player_id, players, matches_stacks, id_cycle,prev_move):
     """
     On avance d'un tour
     :param current_player_id:
@@ -101,8 +108,8 @@ def next_turn(current_player_id, players, matches_stacks, id_cycle):
     """
     if matches_stacks[0] > 1:
         current_player_id = next_player(id_cycle)
-        compute_turn(current_player_id, players, matches_stacks)
-        next_turn(current_player_id, players, matches_stacks, id_cycle)
+        current_move = compute_turn(current_player_id, players, matches_stacks,prev_move)
+        next_turn(current_player_id, players, matches_stacks, id_cycle,current_move)
     else:
         print(f"{get_player_name_by_id(current_player_id, players)} a gagné !!")
 
@@ -115,9 +122,10 @@ def start_game(starting_player_id, players, matches_stacks):
     :param matches_stacks:
     :return:
     """
-    compute_turn(starting_player_id, players, matches_stacks)
+    prev_move = 0
+    current_move = compute_turn(starting_player_id, players, matches_stacks,prev_move)
     id_cycle = init_cycle(players, starting_player_id)
-    next_turn(starting_player_id, players, matches_stacks, id_cycle)
+    next_turn(starting_player_id, players, matches_stacks, id_cycle,current_move)
 
 
 def get_player_name_by_id(player_id, players):
@@ -135,13 +143,13 @@ def get_player_name_by_id(player_id, players):
     return player_name
 
 
-def init_game(num_players):
+def init_game(num_players,cpu_player):
     """
     Fonction principale qui initialise le jeu: récupère le nom des joueurs, affiche les allumettes et commence la partie
     :param num_players:
     :return:
     """
-    players = init_players_names(num_players)
+    players = init_players_names(num_players,cpu_player)
 
     starting_player_id = choose_starting_player(num_players)
 
@@ -153,7 +161,7 @@ def init_game(num_players):
     print("finish")
 
 
-def init_players_names(num_players):
+def init_players_names(num_players,cpu_player):
     """
     On demande le nom de chaque joueur
     :param num_players:
@@ -161,10 +169,17 @@ def init_players_names(num_players):
     """
     players = []
     for i in range(1, num_players + 1):
-        name = input(f"Entrez le nom du joueur {i} : ")
-        players.append({"id": i, "name": name})
+        if cpu_player and i == 2:
+            players.append({"id": i, "name": "cpu"})
+        else:
+            name = input(f"Entrez le nom du joueur {i} : ")
+            players.append({"id": i, "name": name})
     return players
 
 
 if __name__ == '__main__':
-    init_game(2)
+    cpu = input("Voulez-vous jouer contre l'ordinateur ? (oui/non) :")
+    if cpu == "oui":
+        init_game(2,True)
+    else:
+        init_game(2, False)
