@@ -7,6 +7,25 @@ Jeux  de Nim (variante simple et de Marienbad)
 """
 from itertools import cycle
 
+def ask_yes_no(prompt):
+    """Demande oui/non, accepte variantes (o/oui/y/yes/n/non)."""
+    while True:
+        answer = input(prompt).strip().lower()
+        if answer in {"o", "oui", "y", "yes"}:
+            return True
+        if answer in {"n", "non", "no"}:
+            return False
+        print("Réponse invalide. Tapez oui ou non.")
+
+def ask_int_in_range(prompt):
+    """Demande un entier entre un et deux"""
+    while True:
+        txt = input(prompt).strip()
+        if txt.isdigit():
+            val = int(txt)
+            if 1 <= val <= 2:
+                return val
+        print(f"Valeur invalide. Entrez un entier entre 1 et 2.")
 
 def display_matches_stacks(matches_stacks):
     """
@@ -32,17 +51,8 @@ def choose_starting_player(num_players):
         else:
             print(i, end=" )  ? ")
 
-    starting_player_id = input(":  ")
+    return ask_int_in_range(" ")
 
-    if starting_player_id.isdigit():
-        if int(starting_player_id) not in range(1, num_players + 1):
-            print(f"Joueur invalide (entrez un chiffre entre 1 et {num_players} )")
-            return choose_starting_player(num_players)
-        else:
-            return int(starting_player_id)
-    else:
-        print("Joueur invalide (pas un chiffre)")
-        return choose_starting_player(num_players)
 
 
 def compute_turn(current_player_id, players, matches_stacks,prev_move):
@@ -178,8 +188,5 @@ def init_players_names(num_players,cpu_player):
 
 
 if __name__ == '__main__':
-    cpu = input("Voulez-vous jouer contre l'ordinateur ? (oui/non) :")
-    if cpu == "oui":
-        init_game(2,True)
-    else:
-        init_game(2, False)
+    cpu = ask_yes_no("Voulez-vous jouer contre l'ordinateur ? (oui/non) : ")
+    init_game(2, cpu)
