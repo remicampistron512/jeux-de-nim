@@ -41,9 +41,11 @@ def display_matches_stacks(matches_stacks):
     :param matches_stacks:
     :return:
     """
-    for stack in matches_stacks:
+    for key,stack in enumerate(matches_stacks):
+        print (f"tas n°{key + 1}  ",end=" :")
         for i in range(0, stack):
             print(" | ", end=" ")
+        print ("")
 
 
 def choose_starting_player(num_players):
@@ -186,9 +188,11 @@ def init_game(num_players,cpu_player,game_type):
     players = init_players_names(num_players,cpu_player)
 
     starting_player_id = choose_starting_player(num_players)
-
-    matches_stacks = [0]
-    matches_stacks[0] = 21
+    if int(game_type) == 1:
+        matches_stacks = [0]
+        matches_stacks[0] = 21
+    else:
+        matches_stacks = (1,3,5,7)
 
     start_game(starting_player_id, players, matches_stacks)
 
