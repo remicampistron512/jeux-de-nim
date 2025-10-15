@@ -70,7 +70,7 @@ def compute_turn(current_player_id, players, matches_stacks,prev_move):
         num_matches_removed = 5 - int(prev_move)
         print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
     else:
-        num_matches_removed = input("Combien d'allumettes souhaitez vous retirez : ")
+        num_matches_removed = input("{}, Combien d'allumettes souhaitez-vous retirez? : " .format(current_player_name))
 
     current_move = num_matches_removed
 
