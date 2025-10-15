@@ -17,15 +17,15 @@ def ask_yes_no(prompt):
             return False
         print("Réponse invalide. Tapez oui ou non.")
 
-def ask_int_in_range(prompt):
+def ask_int_in_range(prompt,min_val,max_val):
     """Demande un entier entre un et deux"""
     while True:
         txt = input(prompt).strip()
         if txt.isdigit():
             val = int(txt)
-            if 1 <= val <= 2:
+            if min_val <= val <= max_val:
                 return val
-        print(f"Valeur invalide. Entrez un entier entre 1 et 2.")
+        print(f"Valeur invalide. Entrez un entier entre {min_val} et {max_val}.")
 
 def ask_game_type(prompt):
     """Demande le type de jeu (Simple ou Marienbad)."""
@@ -61,7 +61,7 @@ def choose_starting_player(num_players):
         else:
             print(i, end=" )  ? ")
 
-    return ask_int_in_range(" ")
+    return ask_int_in_range(" ",1,num_players + 1)
 
 
 def cpu_first_move(num_matches,min_matches,max_matches):
@@ -94,16 +94,12 @@ def compute_turn(current_player_id, players, matches_stacks,prev_move):
             num_matches_removed = cpu_first_move(matches_stacks[0],1,4)
         print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
     else:
-        num_matches_removed = input("{}, Combien d'allumettes souhaitez-vous retirez? : " .format(current_player_name))
+        num_matches_removed = ask_int_in_range(f"{current_player_name}, Combien d'allumettes souhaitez-vous retirez ? :",1,4)
 
     current_move = num_matches_removed
 
-    if str(num_matches_removed).isdigit() and 4 >= int(num_matches_removed) >= 1:
-        matches_stacks[0] -= int(num_matches_removed)
-        return current_move
-    else:
-        print ("merci de rentrer un chiffre valide entre 1 et 4")
-        return compute_turn(current_player_id, players, matches_stacks,current_move)
+    return current_move
+
 
 
 def init_cycle(players, starting_player_id):
