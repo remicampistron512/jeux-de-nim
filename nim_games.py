@@ -27,6 +27,14 @@ def ask_int_in_range(prompt):
                 return val
         print(f"Valeur invalide. Entrez un entier entre 1 et 2.")
 
+def ask_game_type(prompt):
+    """Demande le type de jeu (Simple ou Marienbad)."""
+    while True:
+        answer = input(prompt).strip().lower()
+        if answer in {"1", "2"}:
+            return answer
+        print("Réponse invalide. Tapez 1 ou 2.")
+
 def display_matches_stacks(matches_stacks):
     """
     Affiche les allumettes
@@ -167,9 +175,11 @@ def get_player_name_by_id(player_id, players):
     return player_name
 
 
-def init_game(num_players,cpu_player):
+def init_game(num_players,cpu_player,game_type):
     """
     Fonction principale qui initialise le jeu: récupère le nom des joueurs, affiche les allumettes et commence la partie
+    :param cpu_player:
+    :param game_type:
     :param num_players:
     :return:
     """
@@ -201,6 +211,9 @@ def init_players_names(num_players,cpu_player):
     return players
 
 
+
+
 if __name__ == '__main__':
     cpu = ask_yes_no("Voulez-vous jouer contre l'ordinateur ? (oui/non) : ")
-    init_game(2, cpu)
+    g_type = ask_game_type("Choisissez le type de partie (1:Simple,2:Marienbad) : ")
+    init_game(2, cpu,g_type)
