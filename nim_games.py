@@ -6,6 +6,7 @@
 Jeux  de Nim (variante simple et de Marienbad)
 """
 from itertools import cycle
+
 import random
 def ask_yes_no(prompt):
     """Demande oui/non, accepte variantes (o/oui/y/yes/n/non)."""
@@ -75,6 +76,19 @@ def cpu_first_move(num_matches,min_matches,max_matches):
     return matches_removed
 
 
+def remove_matches(matches_stacks,chosen_stack,num_matches):
+    matches_stacks[chosen_stack] = matches_stacks[chosen_stack] - num_matches
+    print (matches_stacks)
+    return matches_stacks
+
+
+def choose_stack(matches_stacks,current_player_name):
+    chosen_stack = ask_int_in_range(f"{current_player_name}, Quel tas d'allumettes choisissez-vous ? :",1,4)
+    if matches_stacks[chosen_stack-1] <= 0:
+       print ("Ce tas est vide")
+       choose_stack(matches_stacks,current_player_name)
+    return chosen_stack
+
 def compute_turn(current_player_id, players, matches_stacks,prev_move):
     """
     Debut du tour le joueur enlève 1 a 4 allumettes
@@ -94,11 +108,15 @@ def compute_turn(current_player_id, players, matches_stacks,prev_move):
             num_matches_removed = cpu_first_move(matches_stacks[0],1,4)
         print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
     else:
-        num_matches_removed = ask_int_in_range(f"{current_player_name}, Combien d'allumettes souhaitez-vous retirez ? :",1,4)
+        # On est dans la variante marienbad
+        if len(matches_stacks)>1:
+            chosen_stack = choose_stack(matches_stacks,current_player_name)
+        else:
+            chosen_stack = 0
+        num_matches_removed = ask_int_in_range(f"{current_player_name}, Combien d'allumettes souhaitez-vous retirez ? :",1,matches_stacks[chosen_stack-1])
+        matches_stacks = remove_matches(matches_stacks,chosen_stack-1,num_matches_removed)
 
-    current_move = num_matches_removed
-
-    return current_move
+    return [num_matches_removed,matches_stacks]
 
 
 
@@ -136,9 +154,11 @@ def next_turn(current_player_id, players, matches_stacks, id_cycle,prev_move):
     :param id_cycle:
     :return:
     """
-    if matches_stacks[0] > 1:
+    if sum(matches_stacks) > 1:
         current_player_id = next_player(id_cycle)
-        current_move = compute_turn(current_player_id, players, matches_stacks,prev_move)
+        turn_results = compute_turn(current_player_id, players, matches_stacks,prev_move)
+        current_move = turn_results[0]
+        matches_stacks = turn_results[1]
         next_turn(current_player_id, players, matches_stacks, id_cycle,current_move)
     else:
         print(f"{get_player_name_by_id(current_player_id, players)} a gagné !!")
@@ -188,7 +208,7 @@ def init_game(num_players,cpu_player,game_type):
         matches_stacks = [0]
         matches_stacks[0] = 21
     else:
-        matches_stacks = (1,3,5,7)
+        matches_stacks = [1,3,5,7]
 
     start_game(starting_player_id, players, matches_stacks)
 
@@ -214,6 +234,6 @@ def init_players_names(num_players,cpu_player):
 
 
 if __name__ == '__main__':
-    cpu = ask_yes_no("Voulez-vous jouer contre l'ordinateur ? (oui/non) : ")
-    g_type = ask_game_type("Choisissez le type de partie (1:Simple,2:Marienbad) : ")
-    init_game(2, cpu,g_type)
+    #cpu = ask_yes_no("Voulez-vous jouer contre l'ordinateur ? (oui/non) : ")
+    #g_type = ask_game_type("Choisissez le type de partie (1:Simple,2:Marienbad) : ")
+    init_game(2, False,2)
