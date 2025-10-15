@@ -65,10 +65,10 @@ def choose_starting_player(num_players):
     return ask_int_in_range(" ",1,num_players + 1)
 
 
-def cpu_first_move(num_matches,min_matches,max_matches):
+def cpu_move_simple(num_matches, min_matches, max_matches):
     r = list(range(min_matches,max_matches))
     random.shuffle(r)
-    matches_removed = 0
+    matches_removed = r
     for i in r:
         remaining_matches = num_matches - i
         if remaining_matches % 5 == 0:
@@ -89,6 +89,18 @@ def choose_stack(matches_stacks,current_player_name):
        choose_stack(matches_stacks,current_player_name)
     return chosen_stack
 
+
+def cpu_move_marienbad(matches_stacks):
+    stacks = matches_stacks
+    non_empty = [i for i, s in enumerate(stacks) if s >= 1]
+    chosen_stack = random.choice(non_empty)
+    num_match_removed = random.randint(1, stacks[chosen_stack])
+
+    if stacks[chosen_stack] - num_match_removed >= 1:
+        return [chosen_stack, num_match_removed]
+    return [chosen_stack, num_match_removed]
+
+
 def compute_turn(current_player_id, players, matches_stacks,prev_move):
     """
     Debut du tour le joueur enlève 1 a 4 allumettes
@@ -99,14 +111,26 @@ def compute_turn(current_player_id, players, matches_stacks,prev_move):
     :return:
     """
     display_matches_stacks(matches_stacks)
+    num_matches_removed = 0
     current_player_name = get_player_name_by_id(current_player_id, players)
     print(f"c'est a {current_player_name} de jouer")
     if current_player_name == "cpu":
-        if prev_move:
-            num_matches_removed = 5 - int(prev_move)
+        # On est dans la variante marienbad
+        if len(matches_stacks) > 1:
+            move_results = cpu_move_marienbad(matches_stacks)
+            chosen_stack = move_results[1]
+            num_matches_removed = move_results[1]
+
+            matches_stacks = remove_matches(matches_stacks, chosen_stack - 1, num_matches_removed)
+            print("le cpu a retiré " + str(num_matches_removed) + " allumettes sur le tas n°"+ str(chosen_stack) )
         else:
-            num_matches_removed = cpu_first_move(matches_stacks[0],1,4)
-        print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
+            if prev_move:
+                num_matches_removed = 5 - int(prev_move)
+            else:
+                num_matches_removed = cpu_move_simple(matches_stacks[0], 1, 4)
+                matches_stacks = remove_matches(matches_stacks, 1, num_matches_removed)
+            print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
+
     else:
         # On est dans la variante marienbad
         if len(matches_stacks)>1:
@@ -236,4 +260,4 @@ def init_players_names(num_players,cpu_player):
 if __name__ == '__main__':
     #cpu = ask_yes_no("Voulez-vous jouer contre l'ordinateur ? (oui/non) : ")
     #g_type = ask_game_type("Choisissez le type de partie (1:Simple,2:Marienbad) : ")
-    init_game(2, False,2)
+    init_game(2, True,2)
