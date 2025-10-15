@@ -6,7 +6,7 @@
 Jeux  de Nim (variante simple et de Marienbad)
 """
 from itertools import cycle
-
+import random
 def ask_yes_no(prompt):
     """Demande oui/non, accepte variantes (o/oui/y/yes/n/non)."""
     while True:
@@ -54,10 +54,21 @@ def choose_starting_player(num_players):
     return ask_int_in_range(" ")
 
 
+def cpu_first_move(num_matches,min_matches,max_matches):
+    r = list(range(min_matches,max_matches))
+    random.shuffle(r)
+    matches_removed = 0
+    for i in r:
+        remaining_matches = num_matches - i
+        if remaining_matches % 5 == 0:
+            matches_removed = i
+    return matches_removed
+
 
 def compute_turn(current_player_id, players, matches_stacks,prev_move):
     """
     Debut du tour le joueur enlève 1 a 4 allumettes
+    :param prev_move:
     :param current_player_id:
     :param players:
     :param matches_stacks:
@@ -67,7 +78,10 @@ def compute_turn(current_player_id, players, matches_stacks,prev_move):
     current_player_name = get_player_name_by_id(current_player_id, players)
     print(f"c'est a {current_player_name} de jouer")
     if current_player_name == "cpu":
-        num_matches_removed = 5 - int(prev_move)
+        if prev_move:
+            num_matches_removed = 5 - int(prev_move)
+        else:
+            num_matches_removed = cpu_first_move(matches_stacks[0],1,4)
         print ("le cpu a retiré " + str(num_matches_removed) + " allumettes")
     else:
         num_matches_removed = input("{}, Combien d'allumettes souhaitez-vous retirez? : " .format(current_player_name))
@@ -132,7 +146,7 @@ def start_game(starting_player_id, players, matches_stacks):
     :param matches_stacks:
     :return:
     """
-    prev_move = 0
+    prev_move = False
     current_move = compute_turn(starting_player_id, players, matches_stacks,prev_move)
     id_cycle = init_cycle(players, starting_player_id)
     next_turn(starting_player_id, players, matches_stacks, id_cycle,current_move)
